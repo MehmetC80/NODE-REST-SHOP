@@ -17,6 +17,28 @@ app.use(morgan('dev'));
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 
+//Errorhandler for not existing routes
+app.use((req, res, next) => {
+  const error = new Error('Page not found');
+  error.status = 404;
+  res.status(404).send(
+    `<body style="background-color:#333">
+      <h1 style="color:#ccc; text-align:center;margin:20% auto;">Ooops 404!!!</h1>
+      </body>`
+  );
+  next(error);
+});
+
+//Errorhandler for Database errors
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  res.json({
+    error: {
+      message: error.message,
+    },
+  });
+});
+
 app.listen(port, () => {
   console.log(`server is running on port: ${port}`);
 });
