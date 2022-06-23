@@ -1,3 +1,4 @@
+import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
@@ -11,7 +12,12 @@ const port = process.env.PORT;
 
 const app = express();
 
+//middleware for detailed request message in the console
 app.use(morgan('dev'));
+
+//middleware for parseing data
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Routes which should handle requsts
 app.use('/products', productRoutes);
