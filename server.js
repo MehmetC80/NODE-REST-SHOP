@@ -10,10 +10,7 @@ import { orderRoutes } from './api/routes/orders.js';
 dotenv.config();
 
 mongoose.connect(
-  `mongodb+srv://memo:${process.env.MONGODB_PASSWORD}@cluster0.uq0cc.mongodb.net/node-rest-shop`,
-  {
-    useMongoClient: true,
-  }
+  `mongodb+srv://memo:${process.env.MONGODB_PASSWORD}@cluster0.uq0cc.mongodb.net/node-rest-shop`
 );
 
 const port = process.env.PORT;
