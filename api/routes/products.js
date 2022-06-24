@@ -7,11 +7,25 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   Product.find()
+    .select(' name price _id')
     .exec()
     .then((doc) => {
-      console.log(doc);
+      const response = {
+        count: doc.length,
+        products: doc.map((d) => {
+          return {
+            name: d.name,
+            price: d.price,
+            _id: d._id,
+            request: {
+              type: 'GET',
+              url: `http://localhost:4711/products/d._id${d._id}`,
+            },
+          };
+        }),
+      };
 
-      res.status(200).json({ doc });
+      res.status(200).json(response);
     })
     .catch((err) => {
       console.log(err);
@@ -33,8 +47,16 @@ router.post('/', (req, res, next) => {
     .then((result) => {
       console.log(result);
       res.status(201).json({
-        message: 'Handling POST request to /products',
-        createdProduct: product,
+        message: 'Created product successfuly',
+        createdProduct: {
+          name: result.name,
+          price: result.price,
+          _id: result._id,
+          request: {
+            type: 'POST',
+            url: `http://localhost:4711/products${result._id}`,
+          },
+        },
       });
     })
     .catch((err) => {
@@ -73,11 +95,18 @@ router.get('/:productId', (req, res, next) => {
   const id = req.params.productId;
 
   Product.findById(id)
+    .select('name price _id')
     .exec()
     .then((doc) => {
       console.log(`From MongoDb: ${doc}`);
       if (doc) {
-        res.status(200).json({ doc });
+        res.status(200).json({
+          request: {
+            type: 'GET',
+            description: 'GET_ONE_PRODUCT',
+            url: `http://loaclhost:4711/products`,
+          },
+        });
       } else {
         res.status(404).json({
           message: ' No valid entry found for provided ID ',
