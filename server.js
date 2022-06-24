@@ -1,12 +1,20 @@
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import express from 'express';
+import mongoose from 'mongoose';
 import morgan from 'morgan';
 
 import { productRoutes } from './api/routes/products.js';
 import { orderRoutes } from './api/routes/orders.js';
 
 dotenv.config();
+
+mongoose.connect(
+  `mongodb+srv://memo:${process.env.MONGODB_PASSWORD}@cluster0.uq0cc.mongodb.net/node-rest-shop`,
+  {
+    useMongoClient: true,
+  }
+);
 
 const port = process.env.PORT;
 
