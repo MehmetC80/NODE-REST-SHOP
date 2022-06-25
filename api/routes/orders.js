@@ -48,33 +48,26 @@ router.post('/', (req, res, next) => {
         quantity: req.body.quantity,
         product: req.body.productId,
       });
-      order
-        .save()
-        .then((result) => {
-          console.log(result);
-          res.status(201).json({
-            message: 'Order stored',
-            createdOrder: {
-              _id: result._id,
-              product: result.product,
-              quantity: result.quantity,
-            },
-            request: {
-              type: 'POST',
-              url: `http://localhost:4711/orders`,
-            },
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).json({
-            error: err,
-          });
-        });
+      return order.save();
+    })
+    .then((result) => {
+      console.log(result);
+      res.status(201).json({
+        message: 'Order stored',
+        createdOrder: {
+          _id: result._id,
+          product: result.product,
+          quantity: result.quantity,
+        },
+        request: {
+          type: 'POST',
+          url: `http://localhost:4711/orders`,
+        },
+      });
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).json({
-        message: 'Product not found!',
         error: err,
       });
     });
