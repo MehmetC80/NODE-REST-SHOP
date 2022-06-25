@@ -77,6 +77,11 @@ router.get('/:orderId', (req, res, next) => {
   Order.findById(req.params.orderId)
     .exec()
     .then((order) => {
+      if (!order) {
+        return res.status(404).json({
+          message: 'order not found',
+        });
+      }
       res.status(200).json({
         order: order,
         request: {
@@ -94,10 +99,24 @@ router.get('/:orderId', (req, res, next) => {
 });
 
 router.delete('/:orderId', (req, res, next) => {
-  res.status(200).json({
-    message: 'order deleted',
-    orderId: req.params.orderId,
-  });
+  Order.findById(req.params.orderId)
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: 'order deleted',
+        request: {
+          type: 'POST',
+          url: 'http://localhost:4711/orders',
+          body: { productId: 'ID', quantity: 'Number' },
+        },
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: 'order not found',
+        error: err,
+      });
+    });
 });
 
 export const orderRoutes = router;
