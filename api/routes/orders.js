@@ -74,10 +74,23 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/:orderId', (req, res, next) => {
-  res.status(200).json({
-    message: 'order details',
-    orderId: req.params.orderId,
-  });
+  Order.findById(req.params.orderId)
+    .exec()
+    .then((order) => {
+      res.status(200).json({
+        order: order,
+        request: {
+          type: 'GET',
+          url: 'http://localhost:4711/orders',
+        },
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: 'order not found',
+        error: err,
+      });
+    });
 });
 
 router.delete('/:orderId', (req, res, next) => {
