@@ -20,6 +20,9 @@ const app = express();
 //middleware for detailed request message in the console
 app.use(morgan('dev'));
 
+//middleware for access image public
+app.use('/uploads', express.static('uploads'));
+
 //middleware for parseing data
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

@@ -34,7 +34,7 @@ const upload = multer({
 
 router.get('/', (req, res, next) => {
   Product.find()
-    .select(' name price _id')
+    .select(' name price _id productImage ')
     .exec()
     .then((doc) => {
       const response = {
@@ -43,6 +43,7 @@ router.get('/', (req, res, next) => {
           return {
             name: d.name,
             price: d.price,
+            productImage: d.productImage,
             _id: d._id,
             request: {
               type: 'GET',
@@ -67,6 +68,7 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
     price: req.body.price,
+    productImage: req.file.path,
   });
 
   product
@@ -122,7 +124,7 @@ router.get('/:productId', (req, res, next) => {
   const id = req.params.productId;
 
   Product.findById(id)
-    .select('name price _id')
+    .select('name price _id productImage')
     .exec()
     .then((doc) => {
       console.log(`From MongoDb: ${doc}`);
