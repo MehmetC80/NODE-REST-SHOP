@@ -6,9 +6,23 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   Order.find()
+    .select('product quantity _id')
     .exec()
     .then((docs) => {
-      res.status(200).json(docs);
+      res.status(200).json({
+        count: docs.length,
+        orders: docs.map((doc) => {
+          return {
+            _id: doc._id,
+            product: doc.product,
+            quantity: doc.quantity,
+            requet: {
+              type: 'GET',
+              url: `http://localhost:4711/orders/${doc._id}`,
+            },
+          };
+        }),
+      });
     })
     .catch((err) => {
       console.log(err);
