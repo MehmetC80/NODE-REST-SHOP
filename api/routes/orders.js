@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { Order } from '../models/orders';
+import { Order } from '../models/orders.js';
 
 const router = express.Router();
 
@@ -18,7 +18,6 @@ router.post('/', (req, res, next) => {
   });
   order
     .save()
-    .exec()
     .then((result) => {
       console.log(result);
       res.status(201).json(result);
