@@ -42,7 +42,18 @@ router.post('/', (req, res, next) => {
     .save()
     .then((result) => {
       console.log(result);
-      res.status(201).json(result);
+      res.status(201).json({
+        message: 'Order stored',
+        createdOrder: {
+          _id: result._id,
+          product: result.product,
+          quantity: result.quantity,
+        },
+        request: {
+          type: 'POST',
+          url: `http://localhost:4711/orders`,
+        },
+      });
     })
     .catch((err) => {
       console.log(err);
