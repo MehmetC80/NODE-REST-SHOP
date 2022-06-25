@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { Order } from '../models/orders.js';
+import { Product } from '../models/products.js';
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get('/', (req, res, next) => {
             _id: doc._id,
             product: doc.product,
             quantity: doc.quantity,
-            requet: {
+            request: {
               type: 'GET',
               url: `http://localhost:4711/orders/${doc._id}`,
             },
@@ -33,31 +34,47 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  const order = new Order({
-    _id: mongoose.Types.ObjectId(),
-    quantity: req.body.quantity,
-    product: req.body.productId,
-  });
-  order
-    .save()
-    .then((result) => {
-      console.log(result);
-      res.status(201).json({
-        message: 'Order stored',
-        createdOrder: {
-          _id: result._id,
-          product: result.product,
-          quantity: result.quantity,
-        },
-        request: {
-          type: 'POST',
-          url: `http://localhost:4711/orders`,
-        },
+  //only created an order  if an productId exists
+  Product.findById(req.body.productId)
+    .then((product) => {
+      if (!product) {
+        return res.status(404).json({
+          message: 'Product not found',
+        });
+      }
+
+      const order = new Order({
+        _id: mongoose.Types.ObjectId(),
+        quantity: req.body.quantity,
+        product: req.body.productId,
       });
+      order
+        .save()
+        .then((result) => {
+          console.log(result);
+          res.status(201).json({
+            message: 'Order stored',
+            createdOrder: {
+              _id: result._id,
+              product: result.product,
+              quantity: result.quantity,
+            },
+            request: {
+              type: 'POST',
+              url: `http://localhost:4711/orders`,
+            },
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).json({
+            error: err,
+          });
+        });
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
+        message: 'Product not found!',
         error: err,
       });
     });
