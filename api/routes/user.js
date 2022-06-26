@@ -1,7 +1,9 @@
-import express from 'express';
-
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import express from 'express';
+import jwt from 'jsonwebtoken';
 
+dotenv.config();
 import { User } from '../models/user.js';
 import mongoose from 'mongoose';
 
@@ -59,8 +61,17 @@ router.post('/login', (req, res, next) => {
           return res.status(401).json({ message: 'Auth faild' });
         }
         if (result) {
+          const token = jwt.sign(
+            {
+              email: user[0].email,
+              userId: user[0]._id,
+            },
+            process.env.JWT_KEY,
+            { expiresIn: '1h' }
+          );
           return res.status(200).json({
             massage: 'Auth successful',
+            token: token,
           });
         }
         res.status(401).json({ message: 'Auth faild' });
