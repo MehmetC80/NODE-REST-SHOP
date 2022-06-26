@@ -1,13 +1,13 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import bcript from 'bcrypt';
+
+import bcrypt from 'bcrypt';
 
 import { User } from '../models/user.js';
-
+import mongoose from 'mongoose';
 const router = express.Router();
 
 router.post('/signup', (req, res, next) => {
-  bcript.hash(req.body.email, 10, (err, hash) => {
+  bcrypt.hash(req.body.email, 10, (err, hash) => {
     if (err) {
       return res.status(500).json({
         error: err,

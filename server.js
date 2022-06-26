@@ -6,7 +6,7 @@ import morgan from 'morgan';
 
 import { productRoutes } from './api/routes/products.js';
 import { orderRoutes } from './api/routes/orders.js';
-// import { userRoutes } from './api/routes/user.js';
+import { userRoutes } from './api/routes/user.js';
 
 dotenv.config();
 
@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 // Routes which should handle requsts
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
-// app.use('/user', userRoutes);
+app.use('/user', userRoutes);
 
 //Errorhandler for not existing routes
 app.use((req, res, next) => {
