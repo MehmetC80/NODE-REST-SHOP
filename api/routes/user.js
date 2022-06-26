@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 const router = express.Router();
 
 router.post('/signup', (req, res, next) => {
-  bcrypt.hash(req.body.email, 10, (err, hash) => {
+  bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
       return res.status(500).json({
         error: err,
