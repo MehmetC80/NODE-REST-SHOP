@@ -47,14 +47,14 @@ router.post('/signup', (req, res, next) => {
 });
 
 router.post('/login', (req, res, next) => {
-  User.findOne({ email: req.body.email })
+  User.find({ email: req.body.email })
     .exec()
     .then((user) => {
       if (user.length < 1) {
         return res.status(401).json({ message: 'Auth faild' });
       }
 
-      bcrypt.compare(req.body.password, user[0].password, (err, res) => {
+      bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (err) {
           return res.status(401).json({ message: 'Auth faild' });
         }
@@ -68,7 +68,7 @@ router.post('/login', (req, res, next) => {
     })
     .catch((err) => {
       console.log(err);
-      req.status(500).json({ error: err });
+      res.status(500).json({ error: err });
     });
 });
 
