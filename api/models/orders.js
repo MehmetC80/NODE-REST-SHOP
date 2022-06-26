@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { checkAuth } from '../middleware/check-auth.js';
 
 const orderSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
