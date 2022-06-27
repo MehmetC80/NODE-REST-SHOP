@@ -1,123 +1,22 @@
 import { checkAuth } from '../middleware/check-auth.js';
+import { createNewOrder } from '../controllers/orders.js';
+import { deleteSingleOrder } from '../controllers/orders.js';
 import express from 'express';
-import mongoose from 'mongoose';
-import { Order } from '../models/orders.js';
-import { Product } from '../models/products.js';
+import { getAllOrders } from '../controllers/orders.js';
+import { getSingleOrder } from '../controllers/orders.js';
 
 const router = express.Router();
 
-router.get('/', checkAuth, (req, res, next) => {
-  Order.find()
-    .select('product quantity _id')
-    .exec()
-    .then((docs) => {
-      res.status(200).json({
-        count: docs.length,
-        orders: docs.map((doc) => {
-          return {
-            _id: doc._id,
-            product: doc.product,
-            quantity: doc.quantity,
-            request: {
-              type: 'GET',
-              url: `http://localhost:4711/orders/${doc._id}`,
-            },
-          };
-        }),
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err,
-      });
-    });
-});
+// Handle incomming GET requests to /orders
+router.get('/', checkAuth, getAllOrders);
 
-router.post('/', checkAuth, (req, res, next) => {
-  //only created an order  if an productId exists
-  Product.findById(req.body.productId)
-    .then((product) => {
-      if (!product) {
-        return res.status(404).json({
-          message: 'Product not found',
-        });
-      }
+//Handle incomming POST requests to create a new order
+router.post('/', checkAuth, createNewOrder);
 
-      const order = new Order({
-        _id: mongoose.Types.ObjectId(),
-        quantity: req.body.quantity,
-        product: req.body.productId,
-      });
-      return order.save();
-    })
-    .then((result) => {
-      console.log(result);
-      res.status(201).json({
-        message: 'Order stored',
-        createdOrder: {
-          _id: result._id,
-          product: result.product,
-          quantity: result.quantity,
-        },
-        request: {
-          type: 'POST',
-          url: `http://localhost:4711/orders`,
-        },
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err,
-      });
-    });
-});
+//Handle incomming GET request to get an single order by ID
+router.get('/:orderId', checkAuth, getSingleOrder);
 
-router.get('/:orderId', checkAuth, (req, res, next) => {
-  Order.findById(req.params.orderId)
-    .exec()
-    .then((order) => {
-      if (!order) {
-        return res.status(404).json({
-          message: 'order not found',
-        });
-      }
-      res.status(200).json({
-        order: order,
-        request: {
-          type: 'GET',
-          url: 'http://localhost:4711/orders',
-        },
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: 'order not found',
-        error: err,
-      });
-    });
-});
-
-router.delete('/:orderId', checkAuth, (req, res, next) => {
-  Order.findById(req.params.orderId)
-    .exec()
-    .then((result) => {
-      res.status(200).json({
-        message: 'order deleted',
-        request: {
-          type: 'POST',
-          url: 'http://localhost:4711/orders',
-          body: { productId: 'ID', quantity: 'Number' },
-        },
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: 'order not found',
-        error: err,
-      });
-    });
-});
+//Handle incomming DELETE request to delete a single order by ID
+router.delete('/:orderId', checkAuth, deleteSingleOrder);
 
 export const orderRoutes = router;
