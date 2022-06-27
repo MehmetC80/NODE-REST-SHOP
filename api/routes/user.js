@@ -1,100 +1,18 @@
-import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
+import { checkAuth } from '../middleware/check-auth.js';
+import { deleteUser } from '../controllers/user.js';
 import express from 'express';
-import jwt from 'jsonwebtoken';
-
-dotenv.config();
-import { User } from '../models/user.js';
-import mongoose from 'mongoose';
+import { userLogin } from '../controllers/user.js';
+import { userSignUp } from '../controllers/user.js';
 
 const router = express.Router();
 
-router.post('/signup', (req, res, next) => {
-  User.find({ email: req.body.email })
-    .exec()
-    .then((user) => {
-      if (user.length >= 1) {
-        return res.status(409).json({
-          message: 'email allready exists in the DB',
-        });
-      } else {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          if (err) {
-            return res.status(500).json({
-              error: err,
-            });
-          } else {
-            const user = new User({
-              _id: new mongoose.Types.ObjectId(),
-              email: req.body.email,
-              password: hash,
-            });
-            user
-              .save()
-              .then((result) => {
-                console.log(result);
-                res.status(201).json({ message: 'User created' });
-              })
-              .catch((err) => {
-                console.log(err);
-                res.status(500).json({
-                  message: 'email already exists',
-                  error: err,
-                });
-              });
-          }
-        });
-      }
-    });
-});
+//Handle incoming POST request to signup a user
+router.post('/signup', userSignUp);
 
-router.post('/login', (req, res, next) => {
-  User.find({ email: req.body.email })
-    .exec()
-    .then((user) => {
-      if (user.length < 1) {
-        return res.status(401).json({ message: 'Auth faild' });
-      }
+//Handle incoming POST request to login a user
+router.post('/login', userLogin);
 
-      bcrypt.compare(req.body.password, user[0].password, (err, result) => {
-        if (err) {
-          return res.status(401).json({ message: 'Auth faild' });
-        }
-        if (result) {
-          const token = jwt.sign(
-            {
-              email: user[0].email,
-              userId: user[0]._id,
-            },
-            process.env.JWT_KEY,
-            { expiresIn: '1h' }
-          );
-          return res.status(200).json({
-            massage: 'Auth successful',
-            token: token,
-          });
-        }
-        res.status(401).json({ message: 'Auth faild' });
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ error: err });
-    });
-});
-
-router.delete('/:userId', (req, res, next) => {
-  User.remove({ _id: req.params.userId })
-    .exec()
-    .then((ressult) => {
-      res.status(200).json({ message: 'deleted user' });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err,
-      });
-    });
-});
+//Handle incoming DELETE request to delete a user
+router.delete('/:userId', checkAuth, deleteUser);
 
 export const userRoutes = router;
